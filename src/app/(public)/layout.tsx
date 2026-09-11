@@ -6,6 +6,8 @@ import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicAccountMenu } from "@/components/public-account-menu";
 import { PublicEditMode } from "@/components/public-edit-mode";
 import { PublicEditPersistence } from "@/components/public-edit-persistence";
+import { isLandingHost } from "@/lib/club-host";
+import { headers } from "next/headers";
 
 const navigation = [
   ["/", "Home"],
@@ -17,6 +19,13 @@ const navigation = [
 ];
 
 export async function generateMetadata() {
+  const host = (await headers()).get("host") ?? "";
+  if (isLandingHost(host)) {
+    return {
+      title: { default: "Final Third | Clubhouse", template: "%s" },
+      description: "Create a shared home for your grassroots football club.",
+    };
+  }
   const { club } = await getPublicClub();
   return { title: { default: club.name, template: `%s | ${club.name}` } };
 }
@@ -26,6 +35,10 @@ export default async function PublicLayout({
 }: {
   children: ReactNode;
 }) {
+  const host = (await headers()).get("host") ?? "";
+  if (isLandingHost(host)) {
+    return <>{children}</>;
+  }
   const { club } = await getPublicClub();
   const authenticatedUser = await getAuthenticatedApiUser();
   const visibleNavigation = authenticatedUser

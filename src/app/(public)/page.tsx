@@ -4,6 +4,8 @@ import Image from "next/image";
 import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicHeroCarousel } from "@/components/public-hero-carousel";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { headers } from "next/headers";
+import { isLandingHost } from "@/lib/club-host";
 
 function formatFixture(date: string) {
   const value = new Date(date);
@@ -19,6 +21,30 @@ function comparableTeamName(value: string) {
 }
 
 export default async function PublicHome({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
+  const host = (await headers()).get("host") ?? "";
+  if (isLandingHost(host)) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-12">
+        <section className="w-full max-w-3xl">
+          <p className="text-xs font-bold tracking-[0.24em] text-accent">FINAL THIRD CLUBHOUSE</p>
+          <h1 className="mt-5 max-w-2xl text-5xl font-medium tracking-tight sm:text-7xl">
+            Your club,<br /><em className="text-accent">together.</em>
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+            A shared home for grassroots football clubs, players, families, and volunteers.
+            Create your clubhouse and get your club set up in a few minutes.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <Link href="/login?next=/onboarding" className="button-primary rounded-lg px-5 py-3 text-sm font-medium">
+              Create your account <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/login" className="text-sm text-accent hover:underline">Already have an account? Sign in</Link>
+          </div>
+          <p className="mt-16 text-sm text-muted">Your club website and member workspace, in one place.</p>
+        </section>
+      </main>
+    );
+  }
   const { club, fixtures, news, teams, leagueStandings, heroSlides } = await getPublicClub();
   const { edit } = await searchParams;
   const authenticatedUser = await getAuthenticatedApiUser();

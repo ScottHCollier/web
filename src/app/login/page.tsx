@@ -12,6 +12,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const nextPath = safeNextPath((await searchParams).next);
-  if (await getAuthenticatedApiUser()) redirect(nextPath);
+  const user = await getAuthenticatedApiUser();
+  if (user) redirect(user.memberships.length ? nextPath : "/onboarding");
   return <LoginForm nextPath={nextPath} />;
 }

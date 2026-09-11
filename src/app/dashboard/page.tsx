@@ -4,6 +4,9 @@ import { PageHeading, formatDate } from "@/components/page-ui";
 import { Icon } from "@/components/icon";
 import type { Metadata } from "next";
 import { dashboardHref } from "@/lib/navigation";
+import { ClubSetupGuide } from "@/components/club-setup-guide";
+import { getPublicClub } from "@/lib/public-club";
+import { getCurrentClubRole } from "@/lib/current-club";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { club } = await getCurrentClub();
@@ -16,6 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClubHome() {
   const { club, teams, players, fixtures, payments, documents } =
     await getCurrentClub();
+  const { club: publicClub, teams: publicTeams, safeguarding } = await getPublicClub();
+  const role = await getCurrentClubRole(club.id);
   const pending = players.filter(
     (player) => player.registration !== "Complete",
   ).length;
@@ -38,6 +43,7 @@ export default async function ClubHome() {
         title="A little more time for football."
         description={`Welcome to your ${club.name} clubhouse.`}
       />
+      {(role === "owner" || role === "admin") ? <ClubSetupGuide initial={{ teams: teams?.length ?? 0, connectedTeams: publicTeams.filter((team) => team.externalName).length, contactReady: Boolean(publicClub.contactEmail || publicClub.contactPhone || publicClub.contactAddress), safeguardingReady: Boolean(safeguarding.contact_name || safeguarding.contact_email || safeguarding.contact_phone) }} /> : null}
       <div className="grid grid-cols-3 gap-4 max-xl:grid-cols-1">
         <div className="min-w-0 col-span-2 max-xl:col-span-1">
           <section className="relative min-h-72 overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground">

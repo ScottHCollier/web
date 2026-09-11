@@ -9,14 +9,18 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setPending(true); setError("");
+    if (mode === "register" && password !== confirmPassword) {
+      setError("Passwords do not match"); setPending(false); return;
+    }
     const response = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
     const payload = await response.json().catch(() => null);
     if (!response.ok) { setError(payload?.detail ?? "Unable to authenticate"); setPending(false); return; }
-    router.push(mode === "register" ? "/onboarding" : nextPath);
+    router.push(mode === "register" || !payload?.user?.memberships?.length ? "/onboarding" : nextPath);
   }
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
@@ -28,6 +32,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
         <form className="mt-7 grid gap-4" onSubmit={submit}>
           <label className="grid gap-2 text-sm">Email<input className="rounded-lg border border-line bg-surface-muted px-3 py-3" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" /></label>
           <label className="grid gap-2 text-sm">Password<input className="rounded-lg border border-line bg-surface-muted px-3 py-3" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={8} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+          {mode === "register" ? <label className="grid gap-2 text-sm">Confirm password<input className="rounded-lg border border-line bg-surface-muted px-3 py-3" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={8} autoComplete="new-password" /></label> : null}
           {error && <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger" role="alert">{error}</p>}
           <button className="button-primary rounded-lg px-4 py-3 text-sm font-medium disabled:opacity-60" disabled={pending}>{pending ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}</button>
         </form>

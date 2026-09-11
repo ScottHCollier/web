@@ -8,6 +8,22 @@ function normalizeHostname(host: string): string {
   return host.toLowerCase().replace(/:\d+$/, "").replace(/\.$/, "");
 }
 
+export function isBareLocalhost(host: string): boolean {
+  const hostname = normalizeHostname(host);
+  return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
+export function isLandingHost(host: string): boolean {
+  const hostname = normalizeHostname(host);
+  const baseDomain = normalizeHostname(process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "");
+  const vercelParts = hostname.split(".");
+  return (
+    isBareLocalhost(host) ||
+    (hostname.endsWith(".vercel.app") && vercelParts.length === 3) ||
+    (Boolean(baseDomain) && (hostname === baseDomain || hostname === `www.${baseDomain}`))
+  );
+}
+
 export function findClubIdByDomain(host: string): string | undefined {
   const hostname = normalizeHostname(host);
   return clubDomains.find((domain) => domain.hostname === hostname)?.clubId;

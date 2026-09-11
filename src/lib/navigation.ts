@@ -9,7 +9,6 @@ export const dashboardNavigation = [
   ["fixtures", "Fixtures", "calendar", "member"],
   ["availability", "Availability", "calendar", "member"],
   ["notifications", "Notifications", "bell", "member"],
-  ["setup", "Setup guide", "sparkles", "admin"],
   ["registrations", "Registrations", "document", "coach"],
   ["payments", "Payments", "wallet", "admin"],
   ["documents", "Documents", "document", "member"],

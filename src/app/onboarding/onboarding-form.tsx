@@ -16,9 +16,11 @@ export default function OnboardingForm() {
     const clubResponse = await fetch("/api/onboarding/club", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: clubName, slug }) });
     const club = await clubResponse.json().catch(() => null);
     if (!clubResponse.ok) { setError(club?.detail ?? "Could not create your club"); setSaving(false); return; }
-    const match = fullTimeUrl.match(/[?&]teamID=([^&]+)/i) ?? fullTimeUrl.match(/^\d+$/);
-    const league = (fullTimeUrl.match(/[?&](?:league|leagueID)=([^&]+)/i)?.[1] ?? fullTimeLeague) || undefined;
-    const teamResponse = await fetch(`/api/onboarding/club/${club.club_id}/team`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: teamName, ...(match ? { external_provider: "fa_full_time", external_id: match[1], external_league_id: league, external_url: fullTimeUrl.startsWith("http") ? fullTimeUrl : `https://fulltime.thefa.com/displayTeam.html?teamID=${match[1]}${league ? `&league=${league}` : ""}` } : {}) }) });
+    const fullTimeInput = fullTimeUrl.trim();
+    const match = fullTimeInput.match(/[?&]teamID=([^&]+)/i) ?? fullTimeInput.match(/^(\d+)$/);
+    const externalId = match?.[1];
+    const league = (fullTimeInput.match(/[?&](?:league|leagueID)=([^&]+)/i)?.[1] ?? fullTimeLeague.trim()) || undefined;
+    const teamResponse = await fetch(`/api/onboarding/club/${club.club_id}/team`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: teamName, ...(externalId ? { external_provider: "fa_full_time", external_id: externalId, external_league_id: league, external_url: fullTimeInput.startsWith("http") ? fullTimeInput : `https://fulltime.thefa.com/displayTeam.html?teamID=${externalId}${league ? `&league=${league}` : ""}` } : {}) }) });
     if (!teamResponse.ok) { const payload = await teamResponse.json().catch(() => null); setError(payload?.detail ?? "Club created, but the first team could not be added"); setSaving(false); return; }
     const port = window.location.port ? `:${window.location.port}` : "";
     const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "localhost";

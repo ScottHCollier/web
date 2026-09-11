@@ -11,7 +11,6 @@ import { canAccessRole, roleLabel } from "@/lib/roles";
 import { useClub } from "@/components/club-provider";
 import { dashboardHref, dashboardNavigation } from "@/lib/navigation";
 import { themeVariables } from "@/lib/club-themes";
-import { DashboardSetupGate } from "@/components/dashboard-setup-gate";
 
 const navigation = dashboardNavigation.filter(([path]) => path !== "settings");
 
@@ -254,7 +253,7 @@ export function ClubShell({
         </header>
         <div className="relative mb-6 mr-6 min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl bg-background p-1 max-md:mb-4 max-md:mr-3">
           <main id="main-content" className="relative h-full overflow-y-auto overscroll-contain px-4 pb-7 pt-4 max-md:px-2.5 max-md:py-3">
-        <DashboardSetupGate role={role}>{children}</DashboardSetupGate>
+        {children}
           </main>
         </div>
       </div>
