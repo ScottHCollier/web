@@ -180,11 +180,10 @@
 .public-utility { padding: .65rem 0; background: var(--primary); color: var(--primary-foreground); font-size: .62rem; font-weight: 700; letter-spacing: .14em; }
 .public-member-link { color: inherit; opacity: .8; letter-spacing: .04em; }
 .public-brandbar { background: var(--primary); color: var(--primary-foreground); border-bottom: 1px solid color-mix(in srgb, var(--primary-foreground) 18%, transparent); }
-.public-edit-toggle { padding: .55rem .8rem; border: 1px solid color-mix(in srgb, var(--primary-foreground) 35%, transparent); border-radius: 999px; color: var(--primary-foreground); font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-.public-edit-toggle:hover, .public-edit-toggle.is-active { background: var(--secondary); color: var(--secondary-foreground); }
 .public-edit-banner { background: var(--secondary); color: var(--secondary-foreground); font-size: .78rem; }
 .public-edit-banner .public-container { min-height: 2.5rem; }
-.public-edit-banner a { font-weight: 800; text-decoration: underline; text-underline-offset: .2em; }
+.public-edit-exit { padding: .35rem .65rem; border: 1px solid color-mix(in srgb, var(--secondary-foreground) 35%, transparent); border-radius: .4rem; font-weight: 800; }
+.public-edit-exit:hover { background: color-mix(in srgb, var(--secondary-foreground) 12%, transparent); }
 .public-account-menu { position: relative; }
 .public-account-menu summary { display: grid; place-items: center; padding: .35rem; cursor: pointer; list-style: none; opacity: .85; }
 .public-account-menu summary::-webkit-details-marker { display: none; }

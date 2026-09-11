@@ -5,9 +5,9 @@ import { clubOrigin } from "@/lib/club-host";
 import { getCurrentClub, getCurrentClubRole } from "@/lib/current-club";
 import { canAccessRole } from "@/lib/roles";
 import { PageHeading } from "@/components/page-ui";
+import Link from "next/link";
 import { ThemeSettings } from "@/components/theme-settings";
 import { BadgeSettings } from "@/components/badge-settings";
-import { HeroImageSettings } from "@/components/hero-image-settings";
 import { ImageLibrary } from "@/components/image-library";
 import { SafeguardingContactSettings } from "@/components/safeguarding-contact-settings";
 import { getSafeguardingSettings } from "@/lib/safeguarding-api";
@@ -30,10 +30,11 @@ export default async function ClubSettingsPage() {
       <PageHeading
         title="Club admin"
         description="Manage the shared appearance, media and news published by your club."
+        action={<Link href="/?edit=1" className="button-primary inline-flex rounded-lg px-4 py-2 text-sm">Go to website in edit mode</Link>}
       />
       <div className="grid gap-4">
         <ClubAdminTabs panels={{
-          appearance: <><ThemeSettings theme={club.theme} /><BadgeSettings initialUrl={club.badgeUrl} /><HeroImageSettings /></>,
+          appearance: <><ThemeSettings theme={club.theme} /><BadgeSettings initialUrl={club.badgeUrl} /></>,
           media: <ImageLibrary />,
           "club-details": <>
             <SafeguardingContactSettings initial={safeguarding} />

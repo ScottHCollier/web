@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicAccountMenu } from "@/components/public-account-menu";
 import { PublicEditMode } from "@/components/public-edit-mode";
+import { PublicEditPersistence } from "@/components/public-edit-persistence";
 
 const navigation = [
   ["/", "Home"],
@@ -39,6 +40,8 @@ export default async function PublicLayout({
         Skip to content
       </a>
       <header className="public-header">
+        <PublicEditPersistence />
+        <PublicEditMode canEdit={canEdit} />
         <div className="public-brandbar">
           <div className="public-container flex items-center justify-between gap-4">
             <Link href="/" className="public-brand">
@@ -52,7 +55,6 @@ export default async function PublicLayout({
               <span>{club.name}</span>
             </Link>
             <PublicAccountMenu authenticated={Boolean(authenticatedUser)} />
-            <PublicEditMode canEdit={canEdit} />
             <details className="public-mobile-menu public-menu">
               <summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
               <nav aria-label="Public navigation">
