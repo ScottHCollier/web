@@ -26,7 +26,14 @@ export async function authenticate(path: "login" | "register", email: string, pa
     const payload = await response.json().catch(() => null);
     if (!response.ok) return { error: payload?.detail ?? "Authentication failed", status: response.status };
     return { result: payload as AuthResult };
-  } catch { return { error: "The authentication service is unavailable." }; }
+  } catch (error) {
+    console.error("Authentication API request failed", {
+      apiOrigin,
+      path,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return { error: "The authentication service is unavailable." };
+  }
 }
 
 export async function getAuthenticatedApiUser(): Promise<ApiUser | null> {
