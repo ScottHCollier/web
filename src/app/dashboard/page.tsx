@@ -5,7 +5,7 @@ import { Icon } from "@/components/icon";
 import type { Metadata } from "next";
 import { dashboardHref } from "@/lib/navigation";
 import { ClubSetupGuide } from "@/components/club-setup-guide";
-import { getPublicClub } from "@/lib/public-club";
+import { getPublicClubForId } from "@/lib/public-club";
 import { getCurrentClubRole } from "@/lib/current-club";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClubHome() {
   const { club, teams, players, fixtures, payments, documents } =
     await getCurrentClub();
-  const { club: publicClub, teams: publicTeams, safeguarding } = await getPublicClub();
+  const { club: publicClub, teams: publicTeams, safeguarding } = await getPublicClubForId(club.id);
   const role = await getCurrentClubRole(club.id);
   const pending = players.filter(
     (player) => player.registration !== "Complete",

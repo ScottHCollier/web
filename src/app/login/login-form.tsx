@@ -20,7 +20,7 @@ export default function LoginForm({ nextPath }: { nextPath: string }) {
     const response = await fetch(`/api/auth/${mode}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password }) });
     const payload = await response.json().catch(() => null);
     if (!response.ok) { setError(payload?.detail ?? "Unable to authenticate"); setPending(false); return; }
-    router.push(mode === "register" || !payload?.user?.memberships?.length ? "/onboarding" : nextPath);
+    router.push(mode === "register" ? "/verify-email" : !payload?.user?.memberships?.length ? "/onboarding" : nextPath);
   }
   return (
     <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">

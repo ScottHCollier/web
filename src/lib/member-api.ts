@@ -3,6 +3,7 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { authCookieName } from "@/lib/auth";
+import { dashboardClubCookie } from "@/lib/dashboard-club";
 
 const apiOrigin = process.env.API_URL ?? "http://localhost:8000";
 
@@ -80,14 +81,17 @@ async function apiRequest<T>(path: string, init: RequestInit = {}) {
 }
 
 export async function getMemberApiContext() {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(
-    `${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`,
-    { cache: "no-store" },
-  );
-  if (!club.ok) notFound();
-  const clubData = (await club.json()) as { club_id: string };
-  const clubId = clubData.club_id;
+  const selected = (await cookies()).get(dashboardClubCookie)?.value;
+  let clubId = selected;
+  if (!clubId) {
+    const host = (await headers()).get("host") ?? "";
+    const club = await fetch(
+      `${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`,
+      { cache: "no-store" },
+    );
+    if (!club.ok) notFound();
+    clubId = ((await club.json()) as { club_id: string }).club_id;
+  }
   const [teams, players, fixtures, payments] = await Promise.all([
     apiRequest<ApiTeam[]>(`/api/v1/public/clubs/${clubId}/teams`),
     apiRequest<ApiPlayer[]>(`/api/v1/clubs/${clubId}/players`),

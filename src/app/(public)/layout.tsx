@@ -67,7 +67,7 @@ export default async function PublicLayout({
               )}
               <span>{club.name}</span>
             </Link>
-            <PublicAccountMenu authenticated={Boolean(authenticatedUser)} />
+            <PublicAccountMenu />
             <details className="public-mobile-menu public-menu">
               <summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
               <nav aria-label="Public navigation">

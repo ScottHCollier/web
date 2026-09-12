@@ -184,7 +184,8 @@
 .public-edit-banner .public-container { min-height: 2.5rem; }
 .public-edit-exit { padding: .35rem .65rem; border: 1px solid color-mix(in srgb, var(--secondary-foreground) 35%, transparent); border-radius: .4rem; font-weight: 800; }
 .public-edit-exit:hover { background: color-mix(in srgb, var(--secondary-foreground) 12%, transparent); }
-.public-account-menu { position: relative; }
+.public-account-menu { position: relative; display: grid; place-items: center; padding: .35rem; cursor: pointer; opacity: .85; }
+.public-account-menu:hover { color: var(--secondary); opacity: 1; }
 .public-account-menu summary { display: grid; place-items: center; padding: .35rem; cursor: pointer; list-style: none; opacity: .85; }
 .public-account-menu summary::-webkit-details-marker { display: none; }
 .public-account-menu summary:hover { color: var(--secondary); opacity: 1; }

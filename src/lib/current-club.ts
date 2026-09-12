@@ -1,19 +1,15 @@
 import "server-only";
-import { headers } from "next/headers";
-import { clubOrigin } from "@/lib/club-host";
 import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getAuthenticatedApiUser, toDashboardUser } from "@/lib/auth";
 import { getClubTheme } from "@/lib/club-themes";
 import { getMemberApiContext } from "@/lib/member-api";
 import type { ClubData, ClubRole } from "@/types/club";
-import { dashboardHref } from "@/lib/navigation";
 
 export const getCurrentClub = cache(async () => {
   const user = await getCurrentUser();
   const api = await getMemberApiContext();
-  const host = (await headers()).get("host") ?? "";
-  const response = await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(host.replace(/:\d+$/, ""))}`, { cache: "no-store" });
+  const response = await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/${api.clubId}`, { cache: "no-store" });
   if (!response.ok || !user.memberships.some((membership) => membership.clubId === api.clubId)) notFound();
   const club = await response.json() as { club_id: string; name: string; slug: string; badge_url: string | null; theme: ClubData["club"]["theme"] | null };
   const data: ClubData = {
@@ -37,12 +33,9 @@ export const getCurrentClub = cache(async () => {
 export const getMemberClubs = cache(async () => {
   const apiUser = await getAuthenticatedApiUser();
   if (!apiUser) redirect("/login?next=/dashboard");
-  const host = (await headers()).get("host") ?? "";
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "localhost";
   return apiUser.memberships.map((membership) => {
     const slug = membership.club_slug;
-    const hostname = baseDomain === "localhost" ? `${slug}.localhost` : `${slug}.${baseDomain}`;
-    return { id: membership.club_id, name: slug.replaceAll("-", " "), slug, badgeUrl: null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: getClubTheme(slug), href: clubOrigin(hostname, host) + dashboardHref(), role: membership.role };
+    return { id: membership.club_id, name: slug.replaceAll("-", " "), slug, badgeUrl: null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: getClubTheme(slug), href: `/api/dashboard/select-club?club_id=${encodeURIComponent(membership.club_id)}&next=${encodeURIComponent("/dashboard")}`, role: membership.role };
   });
 });
 

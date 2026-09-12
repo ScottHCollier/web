@@ -2,7 +2,28 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { getClubTheme } from "@/lib/club-themes";
+import type { ClubData } from "@/types/club";
 const apiOrigin = process.env.API_URL ?? "http://localhost:8000";
+
+export const getPublicClubForId = cache(async (clubId: string) => {
+  const [clubResponse, teamsResponse, safeguardingResponse, contactResponse] = await Promise.all([
+    fetch(`${apiOrigin}/api/v1/public/clubs/${clubId}`, { cache: "no-store" }),
+    fetch(`${apiOrigin}/api/v1/public/clubs/${clubId}/teams`, { cache: "no-store" }),
+    fetch(`${apiOrigin}/api/v1/public/clubs/${clubId}/safeguarding`, { cache: "no-store" }),
+    fetch(`${apiOrigin}/api/v1/public/clubs/${clubId}/contact`, { cache: "no-store" }),
+  ]);
+  if (!clubResponse.ok || !teamsResponse.ok) notFound();
+  const club = await clubResponse.json() as { club_id: string; name: string; slug: string; badge_url: string | null; theme: ClubData["club"]["theme"] | null };
+  const teams = await teamsResponse.json() as { team_id: string; name: string; external_name?: string | null }[];
+  const safeguarding = safeguardingResponse.ok ? await safeguardingResponse.json() as { contact_name: string | null; contact_email: string | null; contact_phone: string | null } : { contact_name: null, contact_email: null, contact_phone: null };
+  const contact = contactResponse.ok ? await contactResponse.json() as { contact_email: string | null; contact_phone: string | null; contact_address: string | null } : { contact_email: null, contact_phone: null, contact_address: null };
+  return {
+    club: { id: club.club_id, name: club.name, slug: club.slug, badgeUrl: club.badge_url, heroImageUrl: null, heroDisplayMode: "current" as const, theme: club.theme ?? getClubTheme(club.slug), contactEmail: contact.contact_email, contactPhone: contact.contact_phone, contactAddress: contact.contact_address },
+    teams: teams.map(team => ({ id: team.team_id, name: team.name, externalName: team.external_name ?? null })),
+    safeguarding,
+  };
+});
 
 export const getPublicClub = cache(async () => {
   const host = (await headers()).get("host") ?? "";
