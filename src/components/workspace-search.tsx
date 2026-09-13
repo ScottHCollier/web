@@ -5,7 +5,9 @@ import { Icon } from "@/components/icon";
 import type { ClubRole } from "@/types/club";
 import { canAccessRole } from "@/lib/roles";
 import { dashboardHref, dashboardNavigation } from "@/lib/navigation";
+import { useClub } from "@/components/club-provider";
 export function WorkspaceSearch({ role }: { role: ClubRole }) {
+  const club = useClub();
   const [query, setQuery] = useState("");
   const results = dashboardNavigation.filter(([, label, , minimumRole]) =>
     canAccessRole(role, minimumRole) && label.toLowerCase().includes(query.trim().toLowerCase()),
@@ -36,7 +38,7 @@ export function WorkspaceSearch({ role }: { role: ClubRole }) {
               <Link
                 key={route}
                 className="flex items-center justify-between gap-3 rounded-md px-2.5 py-2.5 text-xs text-foreground hover:bg-accent-soft "
-                href={dashboardHref(route)}
+                href={dashboardHref(route, club.slug)}
                 onClick={() => setQuery("")}
               >
                 {title}

@@ -35,7 +35,7 @@ export const getMemberClubs = cache(async () => {
   if (!apiUser) redirect("/login?next=/dashboard");
   return apiUser.memberships.map((membership) => {
     const slug = membership.club_slug;
-    return { id: membership.club_id, name: slug.replaceAll("-", " "), slug, badgeUrl: null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: getClubTheme(slug), href: `/api/dashboard/select-club?club_id=${encodeURIComponent(membership.club_id)}&next=${encodeURIComponent("/dashboard")}`, role: membership.role };
+    return { id: membership.club_id, name: slug.replaceAll("-", " "), slug, badgeUrl: null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: getClubTheme(slug), href: `/api/dashboard/select-club?club_id=${encodeURIComponent(membership.club_id)}&club_slug=${encodeURIComponent(slug)}&next=${encodeURIComponent("/dashboard")}`, role: membership.role };
   });
 });
 

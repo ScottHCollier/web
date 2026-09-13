@@ -102,7 +102,7 @@ export function ClubShell({
         </button>
         <nav id="club-navigation" aria-label="Club navigation" className="grid gap-2">
           {navigation.filter(([, , , minimumRole]) => canAccessRole(role, minimumRole)).map(([path, label, icon]) => {
-            const href = dashboardHref(path);
+            const href = dashboardHref(path, club.slug);
             return (
               <Link
                 key={path}
@@ -121,10 +121,10 @@ export function ClubShell({
         <section className="mt-auto border-t border-line pt-4" aria-label="Account">
           <div className="grid gap-0.5">
             <Link
-              href={dashboardHref("settings")}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-xs hover:bg-surface-muted ${pathname === dashboardHref("settings") ? "bg-accent-soft text-accent " : "text-muted "} ${collapsed ? "justify-center px-2" : ""}`}
+              href={dashboardHref("settings", club.slug)}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-xs hover:bg-surface-muted ${pathname === dashboardHref("settings", club.slug) ? "bg-accent-soft text-accent " : "text-muted "} ${collapsed ? "justify-center px-2" : ""}`}
               aria-label="Settings"
-              aria-current={pathname === dashboardHref("settings") ? "page" : undefined}
+              aria-current={pathname === dashboardHref("settings", club.slug) ? "page" : undefined}
               title={collapsed ? "Settings" : undefined}
               onClick={() => { if (window.matchMedia("(max-width: 767px)").matches) updateCollapsed(true); }}
             >

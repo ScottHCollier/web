@@ -24,7 +24,7 @@ export default function OnboardingForm() {
     const league = (fullTimeInput.match(/[?&](?:league|leagueID)=([^&]+)/i)?.[1] ?? fullTimeLeague.trim()) || undefined;
     const teamResponse = await fetch(`/api/onboarding/club/${club.club_id}/team`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: teamName, ...(externalId ? { external_provider: "fa_full_time", external_id: externalId, external_league_id: league, external_url: fullTimeInput.startsWith("http") ? fullTimeInput : `https://fulltime.thefa.com/displayTeam.html?teamID=${externalId}${league ? `&league=${league}` : ""}` } : {}) }) });
     if (!teamResponse.ok) { const payload = await teamResponse.json().catch(() => null); setError(payload?.detail ?? "Club created, but the first team could not be added"); setSaving(false); return; }
-    router.push(`/api/dashboard/select-club?club_id=${encodeURIComponent(club.club_id)}&next=${encodeURIComponent("/dashboard/setup")}`);
+    router.push(`/api/dashboard/select-club?club_id=${encodeURIComponent(club.club_id)}&club_slug=${encodeURIComponent(club.slug)}&next=${encodeURIComponent("/dashboard/setup")}`);
   }
 
   const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "localhost";

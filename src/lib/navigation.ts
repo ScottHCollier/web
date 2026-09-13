@@ -1,5 +1,6 @@
-export function dashboardHref(path = "") {
-  return `/dashboard${path ? `/${path}` : ""}`;
+export function dashboardHref(path = "", clubSlug?: string) {
+  const dashboard = `/dashboard${path ? `/${path}` : ""}`;
+  return clubSlug ? `/clubs/${encodeURIComponent(clubSlug)}${dashboard}` : dashboard;
 }
 
 export const dashboardNavigation = [
