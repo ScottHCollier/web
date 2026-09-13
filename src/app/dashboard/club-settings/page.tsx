@@ -21,7 +21,9 @@ export default async function ClubSettingsPage() {
   if (!canAccessRole(role, "admin")) notFound();
   const safeguarding = await getSafeguardingSettings();
 
-  const host = (await headers()).get("host") ?? "";
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host") ?? "";
+  const scopedSlug = requestHeaders.get("x-final-third-club-slug");
   const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "localhost";
   const domains = [{ hostname: baseDomain === "localhost" ? `${club.slug}.localhost` : `${club.slug}.${baseDomain}` }];
 
@@ -30,7 +32,7 @@ export default async function ClubSettingsPage() {
       <PageHeading
         title="Club admin"
         description="Manage the shared appearance, media and news published by your club."
-        action={<Link href="/?edit=1" className="button-primary inline-flex rounded-lg px-4 py-2 text-sm">Go to website in edit mode</Link>}
+        action={<Link href={`${scopedSlug ? `/${encodeURIComponent(club.slug)}` : ""}/?edit=1`} className="button-primary inline-flex rounded-lg px-4 py-2 text-sm">Go to website in edit mode</Link>}
       />
       <div className="grid gap-4">
         <ClubAdminTabs panels={{

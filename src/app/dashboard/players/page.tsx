@@ -15,7 +15,7 @@ export default async function Page() {
       <PageHeading
         title="Players"
         description="Every player has a place in your club."
-        action={canAccessRole(role, "coach") ? <Link href="/dashboard/players/new" className="button-primary rounded-lg px-4 py-2 text-sm">Add player</Link> : undefined}
+        action={canAccessRole(role, "coach") ? <Link href="new" className="button-primary rounded-lg px-4 py-2 text-sm">Add player</Link> : undefined}
       />
       <PlayerDirectory
         players={data.players.map((player) => ({

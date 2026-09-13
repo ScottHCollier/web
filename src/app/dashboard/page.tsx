@@ -49,7 +49,7 @@ export default async function ClubHome() {
         title="A little more time for football."
         description={`Welcome to your ${club.name} clubhouse.`}
       />
-      {(role === "owner" || role === "admin") ? <ClubSetupGuide initial={{ teams: teams?.length ?? 0, connectedTeams: publicTeams.filter((team) => team.externalName).length, contactReady: Boolean(publicClub.contactEmail || publicClub.contactPhone || publicClub.contactAddress), safeguardingReady: Boolean(safeguarding.contact_name || safeguarding.contact_email || safeguarding.contact_phone) }} /> : null}
+      {(role === "owner" || role === "admin") ? <ClubSetupGuide clubSlug={club.slug} initial={{ teams: teams?.length ?? 0, connectedTeams: publicTeams.filter((team) => team.externalName).length, contactReady: Boolean(publicClub.contactEmail || publicClub.contactPhone || publicClub.contactAddress), safeguardingReady: Boolean(safeguarding.contact_name || safeguarding.contact_email || safeguarding.contact_phone) }} /> : null}
       <div className="grid grid-cols-3 gap-4 max-xl:grid-cols-1">
         <div className="min-w-0 col-span-2 max-xl:col-span-1">
           <section className="relative min-h-72 overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground">

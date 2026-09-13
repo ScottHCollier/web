@@ -1,14 +1,10 @@
 import "server-only";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { authCookieName } from "@/lib/auth";
 import { getDashboardClubId } from "@/lib/dashboard-club";
 
 const apiOrigin = process.env.API_URL ?? "http://localhost:8000";
-
-function hostnameOnly(host: string) {
-  return host.replace(/:\d+$/, "");
-}
 
 export type ApiTeam = { team_id: string; name: string; external_name: string | null; external_provider?: string | null; external_id?: string | null; external_league_id?: string | null; external_url?: string | null };
 export type ApiPlayer = {
@@ -123,10 +119,7 @@ export async function getMemberApiContext() {
 }
 
 export async function saveMemberSelection(input: { fixtureId: string; playerId: string; selected: boolean }) {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiSelection>(`/api/v1/clubs/${clubId}/fixtures/${input.fixtureId}/selection`, {
     method: "PUT",
     body: JSON.stringify({ player_id: input.playerId, selected: input.selected }),
@@ -134,10 +127,7 @@ export async function saveMemberSelection(input: { fixtureId: string; playerId: 
 }
 
 export async function saveMemberAttendance(input: { fixtureId: string; playerId: string; status: ApiAttendance["status"]; note?: string }) {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiAttendance>(`/api/v1/clubs/${clubId}/fixtures/${input.fixtureId}/attendance`, {
     method: "PUT",
     body: JSON.stringify({ player_id: input.playerId, status: input.status, note: input.note ?? null }),
@@ -150,13 +140,7 @@ export async function saveMemberAvailability(input: {
   status: ApiAvailability["status"];
   note?: string;
 }) {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(
-    `${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`,
-    { cache: "no-store" },
-  );
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiAvailability>(
     `/api/v1/clubs/${clubId}/fixtures/${input.fixtureId}/availability`,
     { method: "PUT", body: JSON.stringify({ player_id: input.playerId, status: input.status, note: input.note ?? null }) },
@@ -169,13 +153,7 @@ export async function createMemberFixture(input: {
   startsAt: string;
   venue: string;
 }) {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(
-    `${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`,
-    { cache: "no-store" },
-  );
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiFixture>(`/api/v1/clubs/${clubId}/fixtures`, {
     method: "POST",
     body: JSON.stringify({
@@ -188,13 +166,7 @@ export async function createMemberFixture(input: {
 }
 
 export async function syncMemberFixtures() {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(
-    `${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`,
-    { cache: "no-store" },
-  );
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<{ status: "queued"; created: number; updated: number; skipped: number }>(
     `/api/v1/clubs/${clubId}/fixture-import`,
     { method: "POST" },
@@ -202,33 +174,21 @@ export async function syncMemberFixtures() {
 }
 
 export async function getFixtureImportRunsForDashboard() {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiImportRun[]>(`/api/v1/clubs/${clubId}/fixture-import/runs`);
 }
 
 export async function getFixtureImportRuns() {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiImportRun[]>(`/api/v1/clubs/${clubId}/fixture-import/runs`);
 }
 
 export async function getMemberNotifications() {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiNotification[]>(`/api/v1/clubs/${clubId}/notifications`);
 }
 
 export async function markMemberNotificationRead(notificationId: string) {
-  const host = (await headers()).get("host") ?? "";
-  const club = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostnameOnly(host))}`, { cache: "no-store" });
-  if (!club.ok) throw new Error("Club not found");
-  const { club_id: clubId } = (await club.json()) as { club_id: string };
+  const clubId = await getDashboardClubId();
   return apiRequest<ApiNotification>(`/api/v1/clubs/${clubId}/notifications/${notificationId}/read`, { method: "PUT" });
 }

@@ -47,6 +47,10 @@ export function ClubShell({
   const club = useClub();
   const pathname = usePathname();
   const router = useRouter();
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "";
+  const browserHostname = typeof window === "undefined" ? "" : window.location.hostname;
+  const isCentralHost = !baseDomain || browserHostname === baseDomain || browserHostname === `www.${baseDomain}`;
+  const publicWebsiteHref = isCentralHost ? `/${encodeURIComponent(club.slug)}` : "/";
   const collapsed = useSyncExternalStore(
     subscribeToSidebar,
     getSidebarSnapshot,
@@ -249,7 +253,7 @@ export function ClubShell({
             </button>
             <WorkspaceSearch role={role} />
           </div>
-          <Link href="/" className="shrink-0 text-xs text-muted hover:text-accent">View website</Link>
+          <Link href={publicWebsiteHref} className="shrink-0 text-xs text-muted hover:text-accent">View website</Link>
         </header>
         <div className="relative mb-6 mr-6 min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl bg-background p-1 max-md:mb-4 max-md:mr-3">
           <main id="main-content" className="relative h-full overflow-y-auto overscroll-contain px-4 pb-7 pt-4 max-md:px-2.5 max-md:py-3">

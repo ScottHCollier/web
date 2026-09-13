@@ -114,7 +114,7 @@ export default async function PublicLayout({
             <div>
               <h2 className="public-footer-heading">Explore</h2>
               <nav className="public-footer-links" aria-label="Footer navigation">
-                {publicNavigation.map(([href, label]) => <Link key={href} href={href}>{label}</Link>)}
+                {publicNavigation.map(([href, label]) => <Link key={href} href={`${clubPath}${href === "/" ? "" : href}`}>{label}</Link>)}
               </nav>
             </div>
             <div>

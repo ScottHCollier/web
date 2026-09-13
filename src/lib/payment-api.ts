@@ -1,7 +1,8 @@
 import "server-only";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { authCookieName } from "@/lib/auth";
+import { getDashboardClubId } from "@/lib/dashboard-club";
 
 const api = process.env.API_URL ?? "http://localhost:8000";
 
@@ -17,16 +18,6 @@ export type ApiPayment = {
   paid_at: string | null;
   created_at: string;
 };
-
-async function clubId() {
-  const host = (await headers()).get("host")?.replace(/:\d+$/, "") ?? "";
-  const response = await fetch(
-    `${api}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(host)}`,
-    { cache: "no-store" },
-  );
-  if (!response.ok) throw new Error("Club not found");
-  return (await response.json()).club_id as string;
-}
 
 async function request<T>(path: string, init: RequestInit = {}) {
   const token = (await cookies()).get(authCookieName())?.value;
@@ -45,11 +36,11 @@ async function request<T>(path: string, init: RequestInit = {}) {
 }
 
 export async function getPayments() {
-  return request<ApiPayment[]>(`/api/v1/clubs/${await clubId()}/payments`);
+  return request<ApiPayment[]>(`/api/v1/clubs/${await getDashboardClubId()}/payments`);
 }
 
 export async function createPayment(input: unknown) {
-  return request<ApiPayment>(`/api/v1/clubs/${await clubId()}/payments`, {
+  return request<ApiPayment>(`/api/v1/clubs/${await getDashboardClubId()}/payments`, {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -57,7 +48,7 @@ export async function createPayment(input: unknown) {
 
 export async function updatePayment(paymentId: string, input: unknown) {
   return request<ApiPayment>(
-    `/api/v1/clubs/${await clubId()}/payments/${paymentId}`,
+    `/api/v1/clubs/${await getDashboardClubId()}/payments/${paymentId}`,
     { method: "PATCH", body: JSON.stringify(input) },
   );
 }
