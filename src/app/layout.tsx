@@ -24,7 +24,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const host = (await headers()).get("host") ?? "";
   const requestHeaders = await headers();
-  const scopedSlug = requestHeaders.get("x-final-third-public-club-slug");
+  // Public and dashboard slug routes use different proxy headers, but both
+  // identify the club whose persisted theme must be applied to the document.
+  const scopedSlug = requestHeaders.get("x-final-third-public-club-slug")
+    ?? requestHeaders.get("x-final-third-club-slug");
   const fallbackTheme = getClubTheme(findClubIdByDomain(host));
   let theme = fallbackTheme;
   try {

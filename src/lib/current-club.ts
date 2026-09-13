@@ -6,6 +6,8 @@ import { getClubTheme } from "@/lib/club-themes";
 import { getMemberApiContext } from "@/lib/member-api";
 import type { ClubData, ClubRole } from "@/types/club";
 
+type MemberClubApi = { name: string; badge_url: string | null; theme: ClubData["club"]["theme"] | null };
+
 export const getCurrentClub = cache(async () => {
   const user = await getCurrentUser();
   const api = await getMemberApiContext();
@@ -33,10 +35,17 @@ export const getCurrentClub = cache(async () => {
 export const getMemberClubs = cache(async () => {
   const apiUser = await getAuthenticatedApiUser();
   if (!apiUser) redirect("/login?next=/dashboard");
-  return apiUser.memberships.map((membership) => {
+  return Promise.all(apiUser.memberships.map(async (membership) => {
     const slug = membership.club_slug;
-    return { id: membership.club_id, name: slug.replaceAll("-", " "), slug, badgeUrl: null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: getClubTheme(slug), href: `/api/dashboard/select-club?club_id=${encodeURIComponent(membership.club_id)}&club_slug=${encodeURIComponent(slug)}&next=${encodeURIComponent("/dashboard")}`, role: membership.role };
-  });
+    let club: MemberClubApi | null = null;
+    try {
+      const response = await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/by-slug/${encodeURIComponent(slug)}`, { cache: "no-store" });
+      if (response.ok) club = await response.json() as MemberClubApi;
+    } catch {
+      // Keep the switcher usable if a single club lookup is unavailable.
+    }
+    return { id: membership.club_id, name: club?.name ?? slug.replaceAll("-", " "), slug, badgeUrl: club?.badge_url ?? null, heroImageUrl: null, heroDisplayMode: "current" as const, theme: club?.theme ?? getClubTheme(slug), href: `/api/dashboard/select-club?club_id=${encodeURIComponent(membership.club_id)}&club_slug=${encodeURIComponent(slug)}&next=${encodeURIComponent("/dashboard")}`, role: membership.role };
+  }));
 });
 
 export const getCurrentUser = cache(async () => {
