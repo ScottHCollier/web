@@ -410,6 +410,83 @@
   .public-footer-bottom { align-items: flex-start; flex-direction: column; }
 }
 
+/* The dashboard uses the same calm, full-screen mobile navigation treatment as the public club site. */
+@media (max-width: 767px) {
+  .dashboard-mobile-sidebar {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    animation: public-menu-fade .22s ease-out both;
+  }
+
+  .dashboard-mobile-close {
+    gap: .28rem;
+  }
+
+  .dashboard-mobile-close-line {
+    display: block;
+    width: 1.35rem;
+    border-top: 2px solid currentColor;
+  }
+
+  .dashboard-mobile-close-line:first-child {
+    transform: translateY(.3rem) rotate(45deg);
+  }
+
+  .dashboard-mobile-close-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .dashboard-mobile-close-line:last-child {
+    transform: translateY(-.3rem) rotate(-45deg);
+  }
+
+  .dashboard-mobile-brand {
+    width: calc(100% - 3rem);
+    color: var(--primary-foreground);
+  }
+
+  .dashboard-mobile-brand strong,
+  .dashboard-mobile-navigation a,
+  .dashboard-mobile-sidebar section a,
+  .dashboard-mobile-sidebar section button {
+    color: var(--primary-foreground);
+  }
+
+  .dashboard-mobile-navigation {
+    align-content: center;
+    flex: 1;
+    gap: .5rem;
+    margin: 2rem auto;
+    width: min(100%, 24rem);
+  }
+
+  .dashboard-mobile-navigation a,
+  .dashboard-mobile-sidebar section a,
+  .dashboard-mobile-sidebar section button {
+    justify-content: center;
+    padding: 1rem;
+    font-size: .9rem;
+  }
+
+  .dashboard-mobile-navigation a:hover,
+  .dashboard-mobile-sidebar section a:hover,
+  .dashboard-mobile-sidebar section button:hover {
+    background: color-mix(in srgb, var(--primary-foreground) 10%, transparent);
+  }
+
+  .dashboard-mobile-sidebar section {
+    border-color: color-mix(in srgb, var(--primary-foreground) 25%, transparent);
+  }
+
+  .dashboard-mobile-sidebar section > div:last-child {
+    justify-content: center;
+  }
+
+  .dashboard-mobile-sidebar section > div:last-child button {
+    display: none;
+  }
+}
+
 @keyframes public-menu-fade {
   from { opacity: 0; }
   to { opacity: 1; }

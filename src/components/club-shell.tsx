@@ -72,12 +72,22 @@ export function ClubShell({
         onClick={() => updateCollapsed(true)}
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-20 flex h-screen w-56 flex-shrink-0 flex-col overflow-y-auto bg-surface px-4 py-6 max-xl:w-48 max-md:top-16 max-md:h-auto max-md:w-64 max-md:rounded-t-2xl max-md:p-4 ${collapsed ? "px-3 max-md:hidden" : ""}`}
+        className={`dashboard-mobile-sidebar fixed inset-y-0 left-0 z-20 flex h-screen w-56 flex-shrink-0 flex-col overflow-y-auto bg-surface px-4 py-6 max-xl:w-48 max-md:top-0 max-md:h-dvh max-md:w-screen max-md:rounded-none max-md:p-6 ${collapsed ? "px-3 max-md:hidden" : ""}`}
         style={collapsed ? { width: "4.5rem" } : undefined}
       >
         <button
           type="button"
-          className="flex w-full items-center gap-2.5 border-0 bg-transparent px-1 pb-6 text-left"
+          className="dashboard-mobile-close absolute right-5 top-5 hidden h-10 w-10 place-items-center rounded-lg border-0 bg-transparent text-primary-foreground max-md:grid"
+          onClick={() => updateCollapsed(true)}
+          aria-label="Close navigation"
+        >
+          <span className="dashboard-mobile-close-line" />
+          <span className="dashboard-mobile-close-line" />
+          <span className="dashboard-mobile-close-line" />
+        </button>
+        <button
+          type="button"
+          className="dashboard-mobile-brand flex w-full items-center gap-2.5 border-0 bg-transparent px-1 pb-6 text-left"
           popoverTarget="club-switcher"
           aria-haspopup="dialog"
           aria-label={`Switch club, current club: ${club.name}`}
@@ -104,7 +114,7 @@ export function ClubShell({
             <strong className="text-xs font-medium">{club.name}</strong>
           </span>
         </button>
-        <nav id="club-navigation" aria-label="Club navigation" className="grid gap-2">
+        <nav id="club-navigation" aria-label="Club navigation" className="dashboard-mobile-navigation grid gap-2">
           {navigation.filter(([, , , minimumRole]) => canAccessRole(role, minimumRole)).map(([path, label, icon]) => {
             const href = dashboardHref(path, club.slug);
             return (
@@ -115,6 +125,7 @@ export function ClubShell({
                 aria-label={label}
                 title={collapsed ? label : undefined}
                 aria-current={pathname === href ? "page" : undefined}
+                onClick={() => { if (window.matchMedia("(max-width: 767px)").matches) updateCollapsed(true); }}
               >
                 <Icon name={icon} />
                 <span className={collapsed ? "hidden" : ""}>{label}</span>
@@ -238,7 +249,7 @@ export function ClubShell({
         </div>
       </aside>
       <div className={`flex h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-surface max-md:ml-0 ${collapsed ? "ml-18" : "ml-56 max-xl:ml-48"}`}>
-        <header className="flex h-20 shrink-0 items-center justify-between gap-4 bg-surface pr-6 max-md:h-16 max-md:sticky max-md:top-0 max-md:z-30 max-md:pr-4">
+        <header className="flex h-20 shrink-0 items-center justify-between gap-4 bg-surface pr-6 max-md:h-16 max-md:sticky max-md:top-0 max-md:z-30 max-md:px-4">
           <div className="flex min-w-0 items-center gap-3 max-md:flex-1 max-md:gap-2">
             <button
               type="button"
@@ -255,8 +266,8 @@ export function ClubShell({
           </div>
           <Link href={publicWebsiteHref} className="shrink-0 text-xs text-muted hover:text-accent">View website</Link>
         </header>
-        <div className="relative mb-6 mr-6 min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl bg-background p-1 max-md:mb-4 max-md:mr-3">
-          <main id="main-content" className="relative h-full overflow-y-auto overscroll-contain px-4 pb-7 pt-4 max-md:px-2.5 max-md:py-3">
+        <div className="relative mb-6 mr-6 min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl bg-background p-1 max-md:mx-4 max-md:mb-4 max-md:p-0">
+          <main id="main-content" className="relative h-full overflow-y-auto overscroll-contain px-4 pb-7 pt-4 max-md:px-0 max-md:py-3">
         {children}
           </main>
         </div>
