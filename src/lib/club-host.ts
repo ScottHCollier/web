@@ -24,6 +24,17 @@ export function isLandingHost(host: string): boolean {
   );
 }
 
+export function isAppHost(host: string): boolean {
+  const hostname = normalizeHostname(host);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl) return false;
+  try {
+    return hostname === normalizeHostname(new URL(appUrl).hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function findClubIdByDomain(host: string): string | undefined {
   const hostname = normalizeHostname(host);
   return clubDomains.find((domain) => domain.hostname === hostname)?.clubId;

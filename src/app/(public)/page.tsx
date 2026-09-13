@@ -5,7 +5,8 @@ import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicHeroCarousel } from "@/components/public-hero-carousel";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { headers } from "next/headers";
-import { isLandingHost } from "@/lib/club-host";
+import { isAppHost, isLandingHost } from "@/lib/club-host";
+import { redirect } from "next/navigation";
 
 function formatFixture(date: string) {
   const value = new Date(date);
@@ -22,6 +23,7 @@ function comparableTeamName(value: string) {
 
 export default async function PublicHome({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const host = (await headers()).get("host") ?? "";
+  if (isAppHost(host)) redirect("/login");
   if (isLandingHost(host)) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-12">
