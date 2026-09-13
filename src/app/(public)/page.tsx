@@ -48,6 +48,7 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
     );
   }
   const { club, fixtures, news, teams, leagueStandings, heroSlides } = await getPublicClub();
+  const clubPath = `/clubs/${encodeURIComponent(club.slug)}`;
   const { edit } = await searchParams;
   const authenticatedUser = await getAuthenticatedApiUser();
   const membership = authenticatedUser?.memberships.find((item) => item.club_id === club.id);
@@ -97,7 +98,7 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
         <div><p className="public-kicker">FROM THE CLUB</p><h2>Latest news</h2></div>
       </section>
       <section className="public-news-grid">
-        {homepageNews.slice(0, 3).map((item, index) => <Link href={`/news/${item.id}`} className="public-news-card" key={item.id}>
+        {homepageNews.slice(0, 3).map((item, index) => <Link href={`${clubPath}/news/${item.id}`} className="public-news-card" key={item.id}>
           <div className={`public-news-image public-news-image-${index + 1}${item.imageUrl ? " public-news-image-with-photo" : ""}`}>
             {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized sizes="(max-width: 700px) 100vw, 33vw" /> : null}
           </div>
@@ -135,7 +136,7 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
       <div className="fixture-card-grid">
         {fixtureCards.map((fixture) => {
           const date = fixture.date ? formatFixture(fixture.date) : null;
-          return <Link href="/fixtures" className="fixture-card" key={fixture.id}>
+          return <Link href={`${clubPath}/fixtures`} className="fixture-card" key={fixture.id}>
             <div className="fixture-date"><strong>{date?.day ?? "TBC"}</strong><span>{date?.date ?? "Date to follow"}</span></div>
             <span className="fixture-team-label">{fixture.team}</span>
             <strong>{fixture.title}</strong>
@@ -161,10 +162,10 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
       </section>
 
       <section className="public-lower-grid">
-        {leadNews ? <Link href={`/news/${leadNews.id}`} className="news-feature"><p className="public-kicker">LATEST NEWS</p><h2>{leadNews.title}</h2><p>{leadNews.body}</p><span className="text-link">Read the story →</span></Link> : <Link href="/contact" className="news-feature"><p className="public-kicker">WELCOME TO THE CLUB</p><h2>Find your place at {club.name}</h2><p>Follow the team, keep up with fixtures, and get in touch with the club.</p><span className="text-link">Get in touch →</span></Link>}
+        {leadNews ? <Link href={`${clubPath}/news/${leadNews.id}`} className="news-feature"><p className="public-kicker">LATEST NEWS</p><h2>{leadNews.title}</h2><p>{leadNews.body}</p><span className="text-link">Read the story →</span></Link> : <Link href={`${clubPath}/contact`} className="news-feature"><p className="public-kicker">WELCOME TO THE CLUB</p><h2>Find your place at {club.name}</h2><p>Follow the team, keep up with fixtures, and get in touch with the club.</p><span className="text-link">Get in touch →</span></Link>}
         <div className="club-links">
-          <Link href="/teams"><span>01</span><div><strong>Meet the teams</strong><small>{teams.length} teams, one community</small></div><b>↗</b></Link>
-          <Link href="/contact"><span>02</span><div><strong>Get involved</strong><small>Find your place at the club</small></div><b>↗</b></Link>
+          <Link href={`${clubPath}/teams`}><span>01</span><div><strong>Meet the teams</strong><small>{teams.length} teams, one community</small></div><b>↗</b></Link>
+          <Link href={`${clubPath}/contact`}><span>02</span><div><strong>Get involved</strong><small>Find your place at the club</small></div><b>↗</b></Link>
         </div>
       </section>
     </>

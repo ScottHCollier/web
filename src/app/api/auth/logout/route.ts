@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { authCookieName } from "@/lib/auth";
-import { dashboardClubCookie } from "@/lib/dashboard-club";
+import { dashboardClubCookie, dashboardClubSlugCookie } from "@/lib/dashboard-club";
 
 export async function POST() {
   const token = (await cookies()).get(authCookieName())?.value;
@@ -19,5 +19,6 @@ export async function POST() {
   const response = NextResponse.json({ ok: true });
   response.cookies.set(authCookieName(), "", { httpOnly: true, path: "/", maxAge: 0 });
   response.cookies.set(dashboardClubCookie, "", { httpOnly: true, path: "/", maxAge: 0 });
+  response.cookies.set(dashboardClubSlugCookie, "", { httpOnly: true, path: "/", maxAge: 0 });
   return response;
 }

@@ -26,9 +26,13 @@ export const getPublicClubForId = cache(async (clubId: string) => {
 });
 
 export const getPublicClub = cache(async () => {
+  const requestHeaders = await headers();
+  const scopedSlug = requestHeaders.get("x-final-third-public-club-slug");
   const host = (await headers()).get("host") ?? "";
   const hostname = host.replace(/:\d+$/, "");
-  const clubResponse = await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostname)}`, { cache: "no-store" });
+  const clubResponse = scopedSlug
+    ? await fetch(`${apiOrigin}/api/v1/public/clubs/by-slug/${encodeURIComponent(scopedSlug)}`, { cache: "no-store" })
+    : await fetch(`${apiOrigin}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(hostname)}`, { cache: "no-store" });
   if (!clubResponse.ok) notFound();
   const club = await clubResponse.json() as { club_id: string; name: string; slug: string; badge_url: string | null; contact_email: string | null; contact_phone: string | null; contact_address: string | null };
   const [teamResponse, fixtureResponse, heroResponse, leagueResponse, heroSlidesResponse, safeguardingResponse, articlesResponse, contactResponse] = await Promise.all([

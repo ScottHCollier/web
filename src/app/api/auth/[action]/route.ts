@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, authCookieName } from "@/lib/auth";
-import { dashboardClubCookie } from "@/lib/dashboard-club";
+import { dashboardClubCookie, dashboardClubSlugCookie } from "@/lib/dashboard-club";
 
 export async function POST(request: Request, { params }: { params: Promise<{ action: string }> }) {
   const { action } = await params;
@@ -14,7 +14,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ act
   response.cookies.set(authCookieName(), result.access_token, {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: result.expires_in,
   });
-  const firstClub = result.user.memberships?.[0]?.club_id;
-  if (firstClub) response.cookies.set(dashboardClubCookie, firstClub, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 });
+  const firstClub = result.user.memberships?.[0];
+  if (firstClub) {
+    response.cookies.set(dashboardClubCookie, firstClub.club_id, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 });
+    response.cookies.set(dashboardClubSlugCookie, firstClub.club_slug, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 });
+  }
   return response;
 }

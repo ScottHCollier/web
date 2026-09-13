@@ -7,6 +7,8 @@ import { dashboardHref } from "@/lib/navigation";
 import { ClubSetupGuide } from "@/components/club-setup-guide";
 import { getPublicClubForId } from "@/lib/public-club";
 import { getCurrentClubRole } from "@/lib/current-club";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { club } = await getCurrentClub();
@@ -19,6 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClubHome() {
   const { club, teams, players, fixtures, payments, documents } =
     await getCurrentClub();
+  const requestHeaders = await headers();
+  if (!requestHeaders.get("x-final-third-club-slug")) {
+    redirect(`/clubs/${encodeURIComponent(club.slug)}/dashboard`);
+  }
   const { club: publicClub, teams: publicTeams, safeguarding } = await getPublicClubForId(club.id);
   const role = await getCurrentClubRole(club.id);
   const pending = players.filter(

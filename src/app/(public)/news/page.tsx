@@ -19,7 +19,7 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
         title="Club news"
         description="Stories and announcements from our football community."
       />
-      {canEdit && edit === "1" ? <ArticleSettings /> : <PublicNewsList news={news} />}
+      {canEdit && edit === "1" ? <ArticleSettings /> : <PublicNewsList news={news} clubSlug={club.slug} />}
     </>
   );
 }

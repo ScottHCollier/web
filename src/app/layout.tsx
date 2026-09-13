@@ -23,10 +23,14 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const host = (await headers()).get("host") ?? "";
+  const requestHeaders = await headers();
+  const scopedSlug = requestHeaders.get("x-final-third-public-club-slug");
   const fallbackTheme = getClubTheme(findClubIdByDomain(host));
   let theme = fallbackTheme;
   try {
-    const response = await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(host.replace(/:\d+$/, ""))}`, { cache: "no-store" });
+    const response = scopedSlug
+      ? await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/by-slug/${encodeURIComponent(scopedSlug)}`, { cache: "no-store" })
+      : await fetch(`${process.env.API_URL ?? "http://localhost:8000"}/api/v1/public/clubs/resolve?hostname=${encodeURIComponent(host.replace(/:\d+$/, ""))}`, { cache: "no-store" });
     if (response.ok) {
       const club = await response.json() as { theme?: typeof fallbackTheme | null };
       theme = club.theme ?? fallbackTheme;
