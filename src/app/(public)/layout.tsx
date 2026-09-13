@@ -6,7 +6,7 @@ import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicAccountMenu } from "@/components/public-account-menu";
 import { PublicEditMode } from "@/components/public-edit-mode";
 import { PublicEditPersistence } from "@/components/public-edit-persistence";
-import { isAppHost, isLandingHost } from "@/lib/club-host";
+import { isLandingHost } from "@/lib/club-host";
 import { headers } from "next/headers";
 
 const navigation = [
@@ -19,8 +19,10 @@ const navigation = [
 ];
 
 export async function generateMetadata() {
-  const host = (await headers()).get("host") ?? "";
-  if (isLandingHost(host) || isAppHost(host)) {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host") ?? "";
+  const scopedPublicClub = requestHeaders.get("x-final-third-public-club-slug");
+  if (isLandingHost(host) && !scopedPublicClub) {
     return {
       title: { default: "Final Third | Clubhouse", template: "%s" },
       description: "Create a shared home for your grassroots football club.",
@@ -35,12 +37,15 @@ export default async function PublicLayout({
 }: {
   children: ReactNode;
 }) {
-  const host = (await headers()).get("host") ?? "";
-  if (isLandingHost(host) || isAppHost(host)) {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host") ?? "";
+  const scopedPublicClub = requestHeaders.get("x-final-third-public-club-slug");
+  if (isLandingHost(host) && !scopedPublicClub) {
     return <>{children}</>;
   }
   const { club } = await getPublicClub();
-  const clubPath = `/clubs/${encodeURIComponent(club.slug)}`;
+  const clubPath = scopedPublicClub ? `/${encodeURIComponent(club.slug)}` : "";
+  const dashboardPath = scopedPublicClub ? `${clubPath}/dashboard` : "/dashboard";
   const authenticatedUser = await getAuthenticatedApiUser();
   const visibleNavigation = authenticatedUser
     ? [...navigation, ["/dashboard", "Dashboard"]]
@@ -73,7 +78,7 @@ export default async function PublicLayout({
               <summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
               <nav aria-label="Public navigation">
                 {publicNavigation.map(([href, label]) => <Link key={href} href={`${clubPath}${href === "/" ? "" : href}`}>{label}</Link>)}
-                {authenticatedUser ? <Link href={`/clubs/${encodeURIComponent(club.slug)}/dashboard`}>Dashboard</Link> : <Link href="/login?next=/dashboard">Log in</Link>}
+                {authenticatedUser ? <Link href={dashboardPath}>Dashboard</Link> : <Link href="/login?next=/dashboard">Log in</Link>}
               </nav>
             </details>
           </div>
@@ -85,7 +90,7 @@ export default async function PublicLayout({
                 <Link key={href} href={`${clubPath}${href === "/" ? "" : href}`}>{label}</Link>
               ))}
             </nav>
-            {authenticatedUser ? <Link href={`/clubs/${encodeURIComponent(club.slug)}/dashboard`} className="public-dashboard-link">Dashboard <span aria-hidden="true">↗</span></Link> : null}
+            {authenticatedUser ? <Link href={dashboardPath} className="public-dashboard-link">Dashboard <span aria-hidden="true">↗</span></Link> : null}
           </div>
         </div>
       </header>
@@ -117,7 +122,7 @@ export default async function PublicLayout({
               <nav className="public-footer-links" aria-label="Club links">
             <Link href={`${clubPath}/contact`}>Get involved</Link>
             <Link href={`${clubPath}/contact`}>Contact the club</Link>
-            <Link href={authenticatedUser ? `/clubs/${encodeURIComponent(club.slug)}/dashboard` : "/login?next=/dashboard"}>{authenticatedUser ? "Dashboard" : "Member sign in"}</Link>
+            <Link href={authenticatedUser ? dashboardPath : "/login?next=/dashboard"}>{authenticatedUser ? "Dashboard" : "Member sign in"}</Link>
               </nav>
             </div>
           </div>

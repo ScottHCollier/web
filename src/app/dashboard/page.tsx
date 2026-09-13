@@ -23,7 +23,7 @@ export default async function ClubHome() {
     await getCurrentClub();
   const requestHeaders = await headers();
   if (!requestHeaders.get("x-final-third-club-slug")) {
-    redirect(`/clubs/${encodeURIComponent(club.slug)}/dashboard`);
+    redirect(`/${encodeURIComponent(club.slug)}/dashboard`);
   }
   const { club: publicClub, teams: publicTeams, safeguarding } = await getPublicClubForId(club.id);
   const role = await getCurrentClubRole(club.id);

@@ -5,8 +5,7 @@ import { getAuthenticatedApiUser } from "@/lib/auth";
 import { PublicHeroCarousel } from "@/components/public-hero-carousel";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { headers } from "next/headers";
-import { isAppHost, isLandingHost } from "@/lib/club-host";
-import { redirect } from "next/navigation";
+import { isLandingHost } from "@/lib/club-host";
 
 function formatFixture(date: string) {
   const value = new Date(date);
@@ -22,9 +21,10 @@ function comparableTeamName(value: string) {
 }
 
 export default async function PublicHome({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const host = (await headers()).get("host") ?? "";
-  if (isAppHost(host)) redirect("/login");
-  if (isLandingHost(host)) {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host") ?? "";
+  const scopedPublicClub = requestHeaders.get("x-final-third-public-club-slug");
+  if (isLandingHost(host) && !scopedPublicClub) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background px-5 py-12">
         <section className="w-full max-w-3xl">
@@ -48,7 +48,7 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
     );
   }
   const { club, fixtures, news, teams, leagueStandings, heroSlides } = await getPublicClub();
-  const clubPath = `/clubs/${encodeURIComponent(club.slug)}`;
+  const clubPath = scopedPublicClub ? `/${encodeURIComponent(club.slug)}` : "";
   const { edit } = await searchParams;
   const authenticatedUser = await getAuthenticatedApiUser();
   const membership = authenticatedUser?.memberships.find((item) => item.club_id === club.id);

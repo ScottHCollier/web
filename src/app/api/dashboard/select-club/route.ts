@@ -12,7 +12,7 @@ async function selectClub(request: Request, clubId: string, clubSlug: string | n
   if (!response.ok) return NextResponse.redirect(new URL("/login", request.url));
   const user = await response.json() as { memberships?: { club_id: string }[] };
   if (!user.memberships?.some(membership => membership.club_id === clubId)) return NextResponse.json({ detail: "Club access denied" }, { status: 403 });
-  const destination = new URL(clubSlug ? `/clubs/${encodeURIComponent(clubSlug)}/dashboard${nextPath === "/dashboard" ? "" : nextPath.replace(/^\/dashboard/, "")}` : (nextPath.startsWith("/") ? nextPath : "/dashboard"), request.url);
+  const destination = new URL(clubSlug ? `/${encodeURIComponent(clubSlug)}/dashboard${nextPath === "/dashboard" ? "" : nextPath.replace(/^\/dashboard/, "")}` : (nextPath.startsWith("/") ? nextPath : "/dashboard"), request.url);
   const result = NextResponse.redirect(destination);
   result.cookies.set(dashboardClubCookie, clubId, { httpOnly: true, sameSite: "lax", secure: true, path: "/", maxAge: 60 * 60 * 24 * 30 });
   if (clubSlug) result.cookies.set(dashboardClubSlugCookie, clubSlug, { httpOnly: true, sameSite: "lax", secure: true, path: "/", maxAge: 60 * 60 * 24 * 30 });
