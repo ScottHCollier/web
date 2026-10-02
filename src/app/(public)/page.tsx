@@ -70,10 +70,6 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
   const authenticatedUser = await getAuthenticatedApiUser();
   const membership = authenticatedUser?.memberships.find((item) => item.club_id === club.id);
   const now = new Date().getTime();
-  const upcomingFixtures = fixtures
-    .filter((fixture) => new Date(fixture.date).getTime() > now)
-    .sort((first, second) => new Date(first.date).getTime() - new Date(second.date).getTime())
-    .slice(0, 3);
   const leadNews = news[0];
   const primaryTeam = teams[0];
   const primaryTeamFixtures = primaryTeam ? fixtures.filter((fixture) => fixture.teamId === primaryTeam.id) : fixtures;
@@ -104,7 +100,6 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
     : 0;
   const visibleStandings = (leagueStandings ?? []).slice(visibleStart, visibleStart + 5);
   const canEdit = membership?.role === "owner" || membership?.role === "admin";
-  const fixtureCards = upcomingFixtures.length ? upcomingFixtures : [{ id: "placeholder", team: "Men's First 11", title: "Upcoming fixture", opposition: "Details coming soon", isHome: true, competition: "League", date: "", venue: "Home ground", homeScore: null, awayScore: null }];
   const homepageNews = news.length ? news.map((item) => ({ ...item, type: "news", postedAt: new Date(item.publishedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) })) : [
     { id: "welcome", title: "Welcome to the club", body: "News, match reports and stories from around the clubhouse.", type: "news", postedAt: "2 days ago", imageUrl: null },
     { id: "matchday", title: "Matchday is more than 90 minutes", body: "Follow the teams, support the players and share the moments that matter.", type: "match report", postedAt: "5 days ago", imageUrl: null },
@@ -113,24 +108,6 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
   return (
     <>
       <PublicHeroCarousel slides={heroSlides} canEdit={canEdit} editMode={edit === "1"} />
-
-      <section className="public-section-heading public-news-heading">
-        <div><p className="public-kicker">FROM THE CLUB</p><h2>Latest news</h2></div>
-      </section>
-      <section className="public-news-grid">
-        {homepageNews.slice(0, 3).map((item, index) => <Link href={`${clubPath}/news/${item.id}`} className="public-news-card" key={item.id}>
-          <div className={`public-news-image public-news-image-${index + 1}${item.imageUrl ? " public-news-image-with-photo" : ""}`}>
-            {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized sizes="(max-width: 700px) 100vw, 33vw" /> : null}
-          </div>
-          <div className="public-news-copy">
-            <div className="public-news-meta">
-              <span className={`public-news-type public-news-type-${item.type === "match report" ? "match-report" : "news"}`}>{item.type}</span>
-              <time>{item.postedAt}</time>
-            </div>
-            <h3>{item.title}</h3>
-          </div>
-        </Link>)}
-      </section>
 
       <section className="public-club-snapshot" aria-label="Club snapshot">
         <article className="public-snapshot-card public-snapshot-table">
@@ -150,21 +127,23 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
         </article>
       </section>
 
-      <section className="public-section-heading">
-        <div><p className="public-kicker">NEXT UP</p><h2>On the pitch</h2></div>
+      <section className="public-section-heading public-news-heading">
+        <div><p className="public-kicker">FROM THE CLUB</p><h2>Latest news</h2></div>
       </section>
-      <div className="fixture-card-grid">
-        {fixtureCards.map((fixture) => {
-          const date = fixture.date ? formatFixture(fixture.date) : null;
-          return <Link href={`${clubPath}/fixtures`} className="fixture-card" key={fixture.id}>
-            <div className="fixture-date"><strong>{date?.day ?? "TBC"}</strong><span>{date?.date ?? "Date to follow"}</span></div>
-            <span className="fixture-team-label">{fixture.team}</span>
-            <strong>{fixture.title}</strong>
-            <span className="fixture-card-opposition">{fixture.opposition ?? "Opposition TBC"}</span>
-            <span className="fixture-card-meta">{date?.time ?? "Time TBC"} · {fixture.venue}</span>
-          </Link>;
-        })}
-      </div>
+      <section className="public-news-grid">
+        {homepageNews.slice(0, 3).map((item, index) => <Link href={`${clubPath}/news/${item.id}`} className="public-news-card" key={item.id}>
+          <div className={`public-news-image public-news-image-${index + 1}${item.imageUrl ? " public-news-image-with-photo" : ""}`}>
+            {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized sizes="(max-width: 700px) 100vw, 33vw" /> : null}
+          </div>
+          <div className="public-news-copy">
+            <div className="public-news-meta">
+              <span className={`public-news-type public-news-type-${item.type === "match report" ? "match-report" : "news"}`}>{item.type}</span>
+              <time>{item.postedAt}</time>
+            </div>
+            <h3>{item.title}</h3>
+          </div>
+        </Link>)}
+      </section>
 
       <section className="public-newsletter">
         <div className="public-newsletter-copy">
