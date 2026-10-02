@@ -20,6 +20,23 @@ function comparableTeamName(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function fixtureDetails(fixture: { title: string; opposition: string | null; isHome: boolean | null }, teamNames: string[]) {
+  if (fixture.opposition && fixture.isHome !== null) {
+    return { opposition: fixture.opposition, isHome: fixture.isHome };
+  }
+  const sides = fixture.title.split(/\s+vs\.?\s+/i).map((side) => side.trim());
+  if (sides.length !== 2) return { opposition: fixture.opposition, isHome: fixture.isHome };
+  const [home, away] = sides;
+  const matches = (side: string) => teamNames.some((name) => {
+    const left = comparableTeamName(side);
+    const right = comparableTeamName(name);
+    return left === right || left.includes(right) || right.includes(left);
+  });
+  if (matches(home)) return { opposition: away, isHome: true };
+  if (matches(away)) return { opposition: home, isHome: false };
+  return { opposition: fixture.opposition, isHome: fixture.isHome };
+}
+
 export default async function PublicHome({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const requestHeaders = await headers();
   const host = requestHeaders.get("host") ?? "";
@@ -62,8 +79,11 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
   const primaryTeamFixtures = primaryTeam ? fixtures.filter((fixture) => fixture.teamId === primaryTeam.id) : fixtures;
   const nextMatch = primaryTeamFixtures.find((fixture) => new Date(fixture.date).getTime() > now);
   const previousMatch = [...primaryTeamFixtures].filter((fixture) => new Date(fixture.date).getTime() <= now && fixture.homeScore !== null && fixture.awayScore !== null).sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime())[0];
+  const teamNames = primaryTeam ? [primaryTeam.name, primaryTeam.externalName].filter(Boolean) as string[] : [];
+  const nextMatchDetails = nextMatch ? fixtureDetails(nextMatch, teamNames) : null;
+  const previousMatchDetails = previousMatch ? fixtureDetails(previousMatch, teamNames) : null;
   const previousResult = previousMatch
-    ? previousMatch.isHome === false
+    ? previousMatchDetails?.isHome === false
       ? `${previousMatch.awayScore} - ${previousMatch.homeScore}`
       : `${previousMatch.homeScore} - ${previousMatch.awayScore}`
     : "—";
@@ -121,12 +141,12 @@ export default async function PublicHome({ searchParams }: { searchParams: Promi
           </div>
         </article>
         <article className="public-snapshot-card public-snapshot-match">
-          <div className="public-snapshot-match-heading"><div><span>Upcoming match</span><strong>{nextMatch ? formatFixture(nextMatch.date).date : "No fixture"}</strong></div><span className="public-match-badge">{nextMatch?.isHome === false ? "A" : "H"}</span></div>
-          <div className="public-snapshot-match-body"><div className="public-snapshot-club-mark">{club.badgeUrl ? <Image src={club.badgeUrl} alt="" width={48} height={48} unoptimized /> : club.name.slice(0, 2).toUpperCase()}</div><div><span>{nextMatch?.team ?? primaryTeam?.name ?? "First team"}</span><strong>{nextMatch?.opposition ?? "Details coming soon"}</strong><small>{nextMatch ? `${formatFixture(nextMatch.date).time} · ${nextMatch.venue}` : ""}</small></div></div>
+          <div className="public-snapshot-match-heading"><div><span>Upcoming match</span><strong>{nextMatch ? formatFixture(nextMatch.date).date : "No fixture"}</strong></div><span className="public-match-badge">{nextMatchDetails?.isHome === false ? "A" : "H"}</span></div>
+          <div className="public-snapshot-match-body"><div className="public-snapshot-club-mark">{club.badgeUrl ? <Image src={club.badgeUrl} alt="" width={48} height={48} unoptimized /> : club.name.slice(0, 2).toUpperCase()}</div><div><span>{nextMatch?.team ?? primaryTeam?.name ?? "First team"}</span><strong>{nextMatchDetails?.opposition ?? "Details coming soon"}</strong><small>{nextMatch ? `${formatFixture(nextMatch.date).time} · ${nextMatch.venue}` : ""}</small></div></div>
         </article>
         <article className="public-snapshot-card public-snapshot-match">
-          <div className="public-snapshot-match-heading"><div><span>Previous result</span><strong>{previousMatch ? formatFixture(previousMatch.date).date : "No result"}</strong></div><span className="public-match-badge is-result">{previousMatch?.isHome === false ? "A" : "H"}</span></div>
-          <div className="public-snapshot-result"><span>{previousMatch?.team ?? primaryTeam?.name ?? "First team"}</span><strong>{previousResult.replace(" - ", " | ")}</strong><span>{previousMatch?.opposition ?? "No result recorded"}</span></div>
+          <div className="public-snapshot-match-heading"><div><span>Previous result</span><strong>{previousMatch ? formatFixture(previousMatch.date).date : "No result"}</strong></div><span className="public-match-badge is-result">{previousMatchDetails?.isHome === false ? "A" : "H"}</span></div>
+          <div className="public-snapshot-result"><span>{previousMatch?.team ?? primaryTeam?.name ?? "First team"}</span><strong>{previousResult.replace(" - ", " | ")}</strong><span>{previousMatchDetails?.opposition ?? "No result recorded"}</span></div>
         </article>
       </section>
 
